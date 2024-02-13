@@ -1,151 +1,126 @@
-# Analyzing the NumberServer.java Code
+# Lab Report 2
 
-Analyzing the provided `NumberServer.java` code gives us a clear picture of how the server operates. Here's a breakdown of the key components and functionalities:
+## Part 1:
 
-## Handler Class:
+**Code for ChatServer:**
+  
+```java
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
-- Implements the `URLHandler` interface.
-- Maintains a single piece of state: an integer `num`, initialized to 0.
+class ChatHandler implements URLHandler {
+    private final List<String> messages = new ArrayList<>();
 
-## handleRequest Method:
+    @Override
+    public String handleRequest(URI url) {
+        // Welcome message for the root path
+        if ("/".equals(url.getPath())) {
+            return "Welcome to the ChatServer!";
+        }
+        // Adding a message
+        else if ("/add-message".equals(url.getPath())) {
+            String query = url.getQuery();
+            if (query != null) {
+                // Assuming the order and presence of both 's' and 'user' parameters
+                String[] params = query.split("&");
+                if (params.length == 2) {
+                    String[] messageParam = params[0].split("=");
+                    String[] userParam = params[1].split("=");
+                    if ("s".equals(messageParam[0]) && "user".equals(userParam[0]) && messageParam.length == 2 && userParam.length == 2) {
+                        String message = messageParam[1];
+                        String user = userParam[1];
+                        // Constructing the chat message
+                        String chatMessage = user + ": " + message;
+                        messages.add(chatMessage);
+                        // Building the response with all chat messages
+                        StringBuilder response = new StringBuilder();
+                        for (String msg : messages) {
+                            response.append(msg).append("\n");
+                        }
+                        return response.toString();
+                    }
+                }
+            }
+        }
+        // Response for unrecognized paths or missing parameters
+        return "404 Not Found!";
+    }
+}
 
-This method processes incoming URI requests. It checks the path of the URI and performs different actions based on the path:
+class ChatServer {
+    public static void main(String[] args) throws IOException {
+        if (args.length == 0) {
+            System.out.println("Missing port number! Try any number between 1024 to 49151");
+            return;
+        }
+        int port = Integer.parseInt(args[0]);
+        Server.start(port, new ChatHandler());
+    }
+}
+```
 
-- **Root Path ("/")**: Returns the current value of `num`.
-- **Increment Path ("/increment")**: Increments `num` by 1 and returns a confirmation message.
-- **Add Path ("/add")**: Extracts a query parameter, adds its value to `num`, and returns a message showing the amount added and the new value of `num`. This path expects a query in the format `/add?count=<number>`.
-- If the URI path does not match any of the above, it returns a "404 Not Found!" message.
+## Request Made: `/add-message?s=Hello&user=jpolitz`
 
-## NumberServer Class:
+<img width="589" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/c7b3e86e-8824-4c6d-aef6-4757fb64da0e">
 
-- Contains the `main` method, the entry point of the program.
-- Checks if a port number is provided in the command line arguments; if not, it prints an error message and exits.
-- Parses the provided port number and starts the server on that port using the `Server.start` method and an instance of the `Handler` class.
+### Which methods in your code are called?
 
-## Error Handling and Edge Cases:
+- `handleRequest(URI url)`: This method in `ChatHandler` is called whenever a request is made to the server.
 
-- The code lacks explicit error handling for invalid input. For example, if a non-integer value is passed as a port number or as a parameter to the `/add` path, the program will likely throw an exception.
-- There is no check for integer overflow in the `Handler` class. Continuously incrementing or adding large numbers could lead to unexpected behavior when `num` exceeds the range of an integer.
+### What are the relevant arguments to those methods, and the values of any relevant fields of the class?
 
-## Possible Questions and Considerations:
+- The relevant argument to `handleRequest` is `URI url`, which contains the request URI.
+- In this case, `url.getPath()` would be `"/add-message"`, and `url.getQuery()` would be `"s=Hello&user=jpolitz"`.
 
-1. How does the server handle concurrent requests, especially when they modify `num` simultaneously?
-2. Are there any security concerns, such as SQL injection or Cross-Site Scripting (XSS), with the way parameters are handled?
-3. How can the program be extended or modified to handle more complex operations or maintain more state?
-4. What happens if the `num` variable overflows, and how can this be mitigated?
-5. How could error handling be improved, for example, by catching exceptions related to number parsing?
+### How do the values of any relevant fields of the class change from this specific request?
 
-# Experimenting with URLs
+- Before the request, the `messages` list is empty.
+- After parsing the query, the method constructs a string `jpolitz: Hello` and adds it to the `messages` list.
+- The `messages` list now contains one element: `"jpolitz: Hello"`.
 
-Based on `NumberServer.java`, try different URL paths and queries:
+### Response and Class Field Changes:
 
-## Increment Path
-- **Description**: Add `/increment` to your server's URL. This path will increase the number and display a confirmation message.
-- **Example**: `https://0-0-0-0-4000-1jo5p80mhaciis28q86varuo8k.us.edusercontent.com/increment`
-  <img width="1217" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/45aadeaa-180d-456a-bbb2-a10873297f0e">
-
-
-## Add Path
-- **Description**: Use `/add` with a query, like `/add?count=2`. This adds a specific number to the total.
-- **Example**: `https://0-0-0-0-4000-1jo5p80mhaciis28q86varuo8k.us.edusercontent.com/add?count=2`
-  <img width="1220" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/2cb1f448-6d91-4bce-94f6-5c851f18f715">
+- The response built by concatenating all messages in the list would be `"jpolitz: Hello\n"`, which is sent back to the client.
+- The `messages` list changes by having one new element added to it. Initially, it was empty, and now it contains the string `"jpolitz: Hello"`.
 
 
-## Root Path
-- **Description**: Accessing the root path (just the server URL) should show the current number.
-- **Example**: `https://0-0-0-0-4000-1jo5p80mhaciis28q86varuo8k.us.edusercontent.com/`
-  <img width="947" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/4966aa13-6756-48ff-84bd-9f6788244cf0">
+----
+
+## Request Made: `http://localhost:4000/add-message?s=How%20are%20you&user=yash`
+
+<img width="630" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/b19b3f24-f9b3-47de-934b-6761c499ad2a">
 
 
-## Error Handling
-- **Description**: Try an undefined path to see the "404 Not Found!" response.
-- **Example**: `https://0-0-0-0-4000-1jo5p80mhaciis28q86varuo8k.us.edusercontent.com/123`
-  <img width="840" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/20cb85a3-34d9-49a5-9bc4-00a4a4c1dd59">
+### Which methods in your code are called?
 
-## Differences between `/add` and `/increment` Paths in `NumberServer.java`
+- `handleRequest(URI url)`: This method in `ChatHandler` is invoked whenever a request is made to the server.
 
-## `/increment` Path
-- **Functionality**: Increments the `num` variable by 1 each time the path is accessed.
-- **Usage**: No additional parameters required. Simply append `/increment` to the server's URL.
-- **Example**: Accessing `http://localhost:4000/increment` will increase `num` by 1.
+### What are the relevant arguments to those methods, and the values of any relevant fields of the class?
 
-## `/add` Path
-- **Functionality**: Allows incrementing the `num` variable by a specific amount, specified as a query parameter.
-- **Usage**: Requires a query parameter (e.g., `count`) with the value to add to `num`.
-- **Example**: To increase `num` by 2, access `http://localhost:4000/add?count=2`. The server parses the request, extracts the value `2` from `count`, and adds it to `num`.
+- The relevant argument to `handleRequest` is `URI url`, which contains the request URI.
+- For this request, `url.getPath()` would be `"/add-message"`, and `url.getQuery()` would be `"s=How%20are%20you&user=yash"`.
 
-In summary, `/increment` is for a fixed increment of 1, while `/add` allows specifying the increment amount.
+### How do the values of any relevant fields of the class change from this specific request?
 
-# Run the Server
-<img width="913" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/4a655e07-1be2-4dab-855e-43bccf8de472">
+- Before this request, the `messages` list contains one element from the previous interaction: `"jpolitz: Hello"`.
+- After parsing the query, the method constructs a new string `yash: How are you` and adds it to the `messages` list.
+- The `messages` list now contains two elements: 
+  1. `"jpolitz: Hello"`
+  2. `"yash: How are you"`
 
-# Brainstorming Web Server Applications
+### Response and Class Field Changes:
 
-## Ideas for Server Applications
+- The response built by concatenating all messages in the list would now be:
+  jpolitz: Hello
+  yash: How are you
 
-**Objective:** To brainstorm applications that can be developed using a Java-based web server.
+This string, with each message on a new line, is sent back to the client.
+- The `messages` list changes by having an additional new element added to it. Initially, it contained the string `"jpolitz: Hello"` from the first request, and now it additionally contains the string `"yash: How are you"` as a result of the second request.
 
-**Potential Applications:**
 
-1. **Online Survey Platform:** 
-   - Create a web server to host and manage online surveys or quizzes.
-   - Handle user responses, store results, and provide statistical analysis.
 
-2. **Event Management System:** 
-   - Develop a system for event registrations, ticketing, and attendee information.
-   - Include features like event creation, attendee tracking, and email notifications.
 
-3. **Educational Content Repository:** 
-   - Build a platform for educators to upload and organize educational resources.
-   - Allow students to access and download materials like notes, assignments, and readings.
 
-**Additional Tools/Knowledge Needed:**
-
-- **Database Integration:** Familiarity with databases (e.g., MySQL, MongoDB).
-- **Front-End Development:** Basic knowledge of HTML, CSS, and JavaScript.
-- **Security Measures:** Understanding of web security practices.
-
-## Code Synchronization Issue on ieng6
-
-### Understanding Code Discrepancy
-
-**Objective:** Determine why personalized code edits are not reflected on the ieng6 server.
-
-**Problem Statement:** Custom edits, such as displaying "[Your Name] : <number>", made in the local environment are not appearing on ieng6.
-
-### Discussion Points
-
-**Possible Causes:**
-
-- The updated code has not been deployed to ieng6.
-- Version control issues with different code versions on local and ieng6 server.
-
-### Possible Solutions
-
-**Using GitHub for Code Synchronization:**
-
-- **Step 1:** Push the updated code to a new GitHub repository from your local environment.
-- **Step 2:** On ieng6, pull the latest code from the GitHub repository.
-- **Step 3:** Verify the changes by running the server again on ieng6.
-
-## Accessing URLs from the Command Line with curl
-<img width="1451" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/acb10a05-1e1e-4e1b-9195-8a3276281b8e">
-
-# Search Engine
-<img width="1274" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/96278342-74ed-4d4f-95ba-140279614e62">
-<img width="1067" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/b81cd3db-8c5a-48b2-8c8a-4eaffab2516f">
-
-## Understanding Data Storage
-
-### Storage Location
-- **Where It's Stored**: The list of strings is stored in the server's memory.
-- **Management**: This list is managed by the `SearchHandler` class within the `SearchEngine.java` program.
-
-### Lifespan of Data
-- **Persistence**: The data exists only as long as the server process is running.
-- **Data Loss**: Once the server is stopped, the data in the list is lost.
-
-### Implications
-- **Non-Persistent Data**: The list is not persistent across server restarts.
-- **Server Restart Behavior**: If the server restarts, the list starts empty again.
 
