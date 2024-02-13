@@ -112,12 +112,30 @@ class ChatServer {
 
 ### Response and Class Field Changes:
 
-- The response built by concatenating all messages in the list would now be:
-  jpolitz: Hello
-  yash: How are you
-
-This string, with each message on a new line, is sent back to the client.
+- The response built by concatenating all messages in the list would now be:\
+  jpolitz: Hello\
+  yash: How are you\
+  This string, with each message on a new line, is sent back to the client.\
 - The `messages` list changes by having an additional new element added to it. Initially, it contained the string `"jpolitz: Hello"` from the first request, and now it additionally contains the string `"yash: How are you"` as a result of the second request.
+
+## Part 2:
+### absolute path to the private key for SSH key:
+<img width="352" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/1492261f-c25b-4771-8a8b-dd74eae9089a">
+
+
+### absolute path to the public key for SSH key:
+<img width="400" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/3aff7aed-65c1-4e3e-9efa-d803f581fe21">
+
+### log into `ieng6` without password:
+<img width="718" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/5c530976-b010-45a6-bb3a-91f0eb088436">
+
+## Part 3:
+In week 2, I learned how to use the ssh command to connect to the remote server. It is new to me.
+Even if I am at home and cannot connect to the UCSD-Protected network, I can use the ssh
+command to test if my web server can load the ieng6-20x URLs. In week 3, I learned how to log into
+ieng6 without typing the password. It can save a lot of time.
+
+
 
 
 
