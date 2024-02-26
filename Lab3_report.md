@@ -14,14 +14,16 @@ public void testReversedFailure() {
 An input that doesn't induce a failure is not explicitly provided, but we can infer that any test case which does not check the content of the returned array might pass, such as checking the length of the array instead of its content.
 ```java
 @Test
-public void testReversedNoFailureOnLength() {
-    int[] input = {1, 2, 3};
-    int[] result = ArrayExamples.reversed(input);
-    assertEquals("Array length should remain the same", input.length, result.length);
-}
+    @Test
+    public void testReversedNoFailure() {
+        int[] input = {0,0,0};
+        assertArrayEquals("The array is not properly reversed", new int[]{0,0,0}, ArrayExamples.reversed(input));
+    }
+
 ```
 #### The Symptom
-<img width="1551" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/bd4699c0-8596-4107-8efd-a08c195a3e8a">
+<img width="1280" alt="image" src="https://github.com/PIPICHANG-QAQ/cse15l-lab_reports/assets/134361847/1b6d7cf0-f730-4a60-b050-93da9016750c">
+
 
 #### Before Debug:
 ```java
