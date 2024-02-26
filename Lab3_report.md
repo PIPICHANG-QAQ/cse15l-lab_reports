@@ -126,8 +126,8 @@ This command searches for "error" in `error_log.txt` and displays the line numbe
 This command finds "function" in `main.js` and includes line numbers in the output. It aids in quickly navigating to the function definitions or calls in the source code.
 
 #### Sources:
-- GNU Grep Manual:
+- GNU Grep Manual (used for all the command options):
   [https://www.gnu.org/software/grep/manual/grep.html]
-- Linux `man` pages online:
+- Linux `man` pages online (used for all the command options):
   [https://man7.org/linux/man-pages/man1/grep.1.html]
 
