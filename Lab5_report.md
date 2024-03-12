@@ -8,7 +8,8 @@
 
 **Content:**
 
-Hi everyone,\
+Dear TA,
+
 I am currently working on the Java program `MyProgram.java`. I also ran this Java file by using a
 bash script called `run.sh`. This Java program will read a text file, and print each line numbered.
 However, there is an odd output. The programming omits some lines on the display.
